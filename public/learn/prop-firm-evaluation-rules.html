@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="color-scheme" content="dark light" />
+<title>Prop Firm Evaluation Rules Explained: Targets, Loss Limits, Consistency | PropDrills</title>
+<meta name="description" content="Every rule in a futures prop firm evaluation explained: profit targets, trailing drawdown, daily loss limits, minimum trading days, and consistency rules — and how they interact to fail traders." />
+<link rel="canonical" href="https://propdrills.com/learn/prop-firm-evaluation-rules.html" />
+<link rel="icon" href="/icon.png" />
+<style>
+  :root { color-scheme: dark light;
+    --bg:#0a0e12; --panel:#12181b; --line:#263038; --txt:#e6edf3; --muted:#8a97a3; --accent:#21c77a; }
+  @media (prefers-color-scheme: light) {
+    :root { --bg:#ffffff; --panel:#f4f6f8; --line:#d4dbe2; --txt:#0b0f14; --muted:#5a6672; --accent:#0e9f6e; }
+  }
+  body { margin:0 auto; max-width:720px; padding:36px 22px 60px;
+    font:15px/1.7 system-ui,-apple-system,'Segoe UI',sans-serif; background:var(--bg); color:var(--txt); }
+  a { color:var(--accent); }
+  h1 { font-size:25px; letter-spacing:.3px; margin:14px 0 6px; }
+  h2 { font-size:18px; margin:26px 0 6px; }
+  .home { display:inline-block; margin-bottom:6px; font-size:13px; text-decoration:none; }
+  .muted { color:var(--muted); }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:18px; margin:22px 0; }
+  .cta { display:inline-block; background:var(--accent); color:#08130d; font-weight:700;
+    padding:12px 20px; border-radius:12px; text-decoration:none; margin-top:6px; }
+  .fine { font-size:11.5px; color:var(--muted); line-height:1.5; }
+</style>
+</head>
+<body>
+<a class="home" href="/learn/">← Learn</a>
+<h1>Prop firm evaluation rules, explained</h1>
+<p class="muted">The five rules nearly every futures evaluation shares — and how they interact to end accounts.</p>
+
+<p>Evaluations differ in numbers but rhyme in structure. Understand these five mechanisms and you can read any firm's rule sheet in two minutes.</p>
+
+<h2>1. Profit target</h2>
+<p>The amount you must make to pass — commonly around 6% of the nominal account size (for example $3,000 on a $50k evaluation). The target is the only rule working <i>for</i> you; everything below is a way to fail. That asymmetry is the whole game: you are not asked to get there fast, you are asked to get there <b>without ever touching a wall</b>.</p>
+
+<h2>2. Trailing max drawdown</h2>
+<p>A loss limit measured from your equity high-water mark, not your starting balance — it rises as you profit and never comes back down. This is the rule that fails the most traders, usually via the give-back trap after a good run. It deserves its own read: <a href="/learn/what-is-trailing-drawdown.html">what is trailing drawdown?</a></p>
+
+<h2>3. Daily loss limit</h2>
+<p>A fixed amount below <b>today's starting equity</b> that ends the account (or the day) if crossed — often about half the total drawdown. Because it resets each morning, it is usually the nearer wall early in a session. Serious traders treat a fraction of it as their personal stop for the day and walk away long before the firm would make them.</p>
+
+<h2>4. Minimum trading days</h2>
+<p>You must trade on some minimum number of separate days before a pass counts. The intent is to prevent passing on one lucky session. The practical effect: there is no prize for rushing. A trader who needs two more qualifying days anyway has no reason to force size today.</p>
+
+<h2>5. Consistency rules</h2>
+<p>Many firms cap how much of your total profit can come from a single day — say, no day may exceed 50% of the target. Exceeding the cap typically does not fail you; it <b>raises your effective target</b> until the rest of your trading backs up the big day. One monster session alone can never pass. This quietly rewards the same behavior the other rules do: moderate size, repeated daily.</p>
+
+<h2>How the rules interact</h2>
+<p>Notice the design: the target pulls you toward risk, while the drawdown, daily limit, and consistency cap all punish concentrated risk. The evaluation is not really testing whether you can reach 6% — it is testing whether you can get there in <b>small, boring, repeatable pieces</b>. Traders who internalize that are playing the game as designed; traders who treat it as a race donate the fee.</p>
+
+<div class="card">
+  <b>Run the whole ruleset in simulation</b>
+  <p class="muted" style="margin:6px 0 10px">PropDrills simulates a full multi-day evaluation on replayed MNQ sessions — trailing drawdown, daily loss limit, minimum days, consistency cap, plus commissions and slippage on every fill.</p>
+  <a class="cta" href="https://propdrills.com/">Train free on the web</a>
+  &nbsp; <a href="https://apps.apple.com/us/app/prop-drills/id6798395246">Get the iOS app</a>
+</div>
+
+<p><a href="/drawdown-calculator.html">→ Trailing drawdown calculator</a></p>
+<p class="fine">Education only — not financial advice. Generic mechanics; every firm defines its rules differently, so always confirm the exact terms of your evaluation. Not affiliated with any prop trading firm. Trading futures is leveraged and involves substantial risk of loss.</p>
+<p class="fine"><a href="/learn/what-is-trailing-drawdown.html">Trailing drawdown deep-dive</a> · <a href="/learn/mnq-futures-basics.html">MNQ basics</a> · <a href="/about.html">About PropDrills</a></p>
+</body>
+</html>

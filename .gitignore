@@ -1,0 +1,20 @@
+# dependencies / build
+node_modules/
+dist/
+.wrangler/
+
+# secrets: never commit. API keys live in .env (see .env.example)
+.env
+.env.*
+!.env.example
+.auth/
+
+# real market data: CME data is licensed, keep it local-only
+data/
+!data/.gitkeep
+
+# misc
+.expo/
+*.log
+.DS_Store
+.claude/

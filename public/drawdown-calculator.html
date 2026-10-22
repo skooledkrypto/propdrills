@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="color-scheme" content="dark light" />
+<title>Trailing Drawdown Calculator — Futures Prop Firm Evaluations | PropDrills</title>
+<meta name="description" content="Free trailing drawdown calculator for futures prop firm evaluations. See your exact liquidation level from your high-water mark, daily loss limit, and open equity — and how much room you really have." />
+<link rel="canonical" href="https://propdrills.com/drawdown-calculator.html" />
+<link rel="icon" href="/icon.png" />
+<meta property="og:title" content="Trailing Drawdown Calculator — Prop Firm Evaluations" />
+<meta property="og:description" content="See your exact liquidation level from your high-water mark and daily loss limit. Free, no sign-up." />
+<meta property="og:url" content="https://propdrills.com/drawdown-calculator.html" />
+<style>
+  :root { color-scheme: dark light;
+    --bg:#0a0e12; --panel:#12181b; --panel2:#1b2228; --line:#263038;
+    --txt:#e6edf3; --muted:#8a97a3; --accent:#21c77a; --bad:#f6465d; --gold:#e4b53c; }
+  @media (prefers-color-scheme: light) {
+    :root { --bg:#ffffff; --panel:#f4f6f8; --panel2:#e9edf1; --line:#d4dbe2;
+      --txt:#0b0f14; --muted:#5a6672; --accent:#0e9f6e; --bad:#e0334b; --gold:#a97d10; }
+  }
+  body { margin:0 auto; max-width:760px; padding:36px 22px 60px;
+    font:15px/1.65 system-ui,-apple-system,'Segoe UI',sans-serif; background:var(--bg); color:var(--txt); }
+  a { color:var(--accent); }
+  h1 { font-size:26px; letter-spacing:.3px; margin:14px 0 6px; }
+  h2 { font-size:19px; margin:28px 0 8px; }
+  .home { display:inline-block; margin-bottom:6px; font-size:13px; text-decoration:none; }
+  .muted { color:var(--muted); }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:18px; margin:18px 0; }
+  label { display:block; font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; margin:12px 0 4px; }
+  input { width:100%; box-sizing:border-box; background:var(--panel2); color:var(--txt);
+    border:1px solid var(--line); border-radius:10px; padding:10px 12px; font-size:15px; }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:0 16px; }
+  @media (max-width:560px){ .grid { grid-template-columns:1fr; } }
+  .chips { display:flex; gap:8px; flex-wrap:wrap; margin-top:6px; }
+  .chip { background:var(--panel2); border:1px solid var(--line); color:var(--txt);
+    border-radius:999px; padding:7px 14px; font-size:13px; cursor:pointer; }
+  .chip:hover { border-color:var(--accent); }
+  .out { display:flex; gap:12px; flex-wrap:wrap; margin-top:16px; }
+  .stat { flex:1 1 150px; background:var(--panel2); border:1px solid var(--line); border-radius:12px; padding:12px; text-align:center; }
+  .stat b { display:block; font-size:20px; font-variant-numeric:tabular-nums; }
+  .stat span { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; }
+  .bad { color:var(--bad); } .gold { color:var(--gold); } .good { color:var(--accent); }
+  .cta { display:inline-block; background:var(--accent); color:#08130d; font-weight:700;
+    padding:12px 20px; border-radius:12px; text-decoration:none; margin-top:6px; }
+  .fine { font-size:11.5px; color:var(--muted); line-height:1.5; }
+</style>
+</head>
+<body>
+<a class="home" href="/">← PropDrills</a>
+<h1>Trailing Drawdown Calculator</h1>
+<p class="muted">For futures prop-firm-style evaluations. Enter your numbers and see the exact equity level that ends your account — most traders are closer to it than they think.</p>
+
+<div class="card">
+  <div class="chips" id="presets">
+    <button class="chip" data-acct="25000" data-dd="1000" data-dll="500">$25k eval</button>
+    <button class="chip" data-acct="50000" data-dd="2000" data-dll="1000">$50k eval</button>
+    <button class="chip" data-acct="100000" data-dd="3000" data-dll="2000">$100k eval</button>
+  </div>
+  <div class="grid">
+    <div><label for="acct">Account size ($)</label><input id="acct" type="number" value="50000" step="1000" /></div>
+    <div><label for="dd">Trailing max drawdown ($)</label><input id="dd" type="number" value="2000" step="100" /></div>
+    <div><label for="hwm">Highest equity reached — high-water mark ($)</label><input id="hwm" type="number" value="50000" step="50" /></div>
+    <div><label for="eq">Current equity, incl. open P&amp;L ($)</label><input id="eq" type="number" value="50000" step="50" /></div>
+    <div><label for="dll">Daily loss limit ($, 0 = none)</label><input id="dll" type="number" value="1000" step="100" /></div>
+    <div><label for="dse">Today's starting equity ($)</label><input id="dse" type="number" value="50000" step="50" /></div>
+  </div>
+  <div class="out">
+    <div class="stat"><b id="oLiq" class="bad">—</b><span>Liquidates at</span></div>
+    <div class="stat"><b id="oRoom">—</b><span>Room left</span></div>
+    <div class="stat"><b id="oPts">—</b><span>MNQ points of room (1 contract)</span></div>
+  </div>
+  <p class="fine" id="oNote"></p>
+</div>
+
+<h2>How trailing drawdown actually works</h2>
+<p>Your maximum-loss line is anchored to the <b>highest equity your account has ever reached</b> (the high-water mark), not to your starting balance. Every new equity high drags the liquidation level up behind you — and it never comes back down. On intraday-trailing evaluations the high-water mark includes <b>unrealized</b> profit: a big open winner you give back can raise the bar and then fail you, even if you never closed the trade.</p>
+<p>That is the single most common way traders fail evaluations: not one big loss, but a good run that quietly moved the liquidation level up, followed by a normal pullback.</p>
+
+<h2>The daily loss limit is a second, nearer wall</h2>
+<p>Most evaluations also fail you if equity drops a fixed amount below <b>today's starting equity</b>. Early in a day the daily limit is usually the closer of the two lines. Whichever is nearer is your real room — this calculator shows the binding one.</p>
+
+<h2>Worked example</h2>
+<p>$50k account, $2,000 trailing drawdown. You run the account up to $51,200 — your liquidation level is now $49,200, not $48,000. A routine $1,300 give-back that would have been survivable on day one now ends the account. Room is a moving target; check it every session.</p>
+
+<div class="card">
+  <b>Practice against these exact rules — free</b>
+  <p class="muted" style="margin:6px 0 10px">PropDrills replays real MNQ sessions through a simulated prop-style evaluation: trailing drawdown, daily loss limit, profit target, consistency rule — with commissions and slippage on every fill.</p>
+  <a class="cta" href="https://propdrills.com/">Train free on the web</a>
+  &nbsp; <a href="https://apps.apple.com/us/app/prop-drills/id6798395246">Get the iOS app</a>
+</div>
+
+<p class="fine">Education only — not financial advice. Generic evaluation mechanics; rules differ by firm (end-of-day vs intraday trailing, buffers, locks) — always confirm your firm's exact definitions. Not affiliated with any prop trading firm. Trading futures is leveraged and involves substantial risk of loss.</p>
+<p class="fine"><a href="/learn/prop-firm-evaluation-rules.html">Evaluation rules explained</a> · <a href="/learn/what-is-trailing-drawdown.html">Trailing drawdown deep-dive</a> · <a href="/learn/mnq-futures-basics.html">MNQ basics</a> · <a href="/about.html">About PropDrills</a></p>
+
+<script>
+(function () {
+  var ids = ['acct','dd','hwm','eq','dll','dse'];
+  var $ = function (id) { return document.getElementById(id); };
+  function calc() {
+    var dd = +$('dd').value || 0, hwm = +$('hwm').value || 0, eq = +$('eq').value || 0;
+    var dll = +$('dll').value || 0, dse = +$('dse').value || 0;
+    var liqTrail = hwm - dd;
+    var liqDay = dll > 0 ? dse - dll : -Infinity;
+    var liq = Math.max(liqTrail, liqDay);
+    var room = eq - liq;
+    var fmt = function (n) { return '$' + Math.round(n).toLocaleString('en-US'); };
+    $('oLiq').textContent = fmt(liq);
+    var roomEl = $('oRoom');
+    roomEl.textContent = fmt(room);
+    roomEl.className = room <= 0 ? 'bad' : room < dd * 0.25 ? 'gold' : 'good';
+    $('oPts').textContent = room > 0 ? (room / 2).toLocaleString('en-US', { maximumFractionDigits: 0 }) + ' pts' : '—';
+    var binding = liqTrail >= liqDay ? 'trailing drawdown' : 'daily loss limit';
+    $('oNote').textContent = room <= 0
+      ? 'This account is at or past its liquidation level.'
+      : 'Binding rule right now: ' + binding + '. MNQ points assume $2/point per contract; divide by your contract count.';
+  }
+  ids.forEach(function (id) { $(id).addEventListener('input', calc); });
+  document.getElementById('presets').addEventListener('click', function (e) {
+    var b = e.target.closest('.chip'); if (!b) return;
+    $('acct').value = b.dataset.acct; $('dd').value = b.dataset.dd; $('dll').value = b.dataset.dll;
+    $('hwm').value = b.dataset.acct; $('eq').value = b.dataset.acct; $('dse').value = b.dataset.acct;
+    calc();
+  });
+  calc();
+})();
+</script>
+</body>
+</html>

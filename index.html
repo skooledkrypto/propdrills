@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="dark light" />
+  <meta name="description" content="PropDrills — the MNQ price-action trainer. Drill key levels and setups with spaced repetition, then prove your read in a simulated prop-firm evaluation. Free to train, everything stays on your device." />
+  <link rel="canonical" href="https://propdrills.com/" />
+  <link rel="apple-touch-icon" href="/icon.png" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PropDrills" />
+  <meta property="og:title" content="PropDrills — MNQ Setup Trainer" />
+  <meta property="og:description" content="Drill key levels and setups with spaced repetition, then prove your read in a simulated prop-firm evaluation. Location first, pattern second." />
+  <meta property="og:url" content="https://propdrills.com/" />
+  <meta property="og:image" content="https://propdrills.com/icon.png" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="PropDrills — MNQ Setup Trainer" />
+  <meta name="twitter:description" content="Drill key levels and setups with spaced repetition, then prove your read in a simulated prop-firm evaluation." />
+  <meta name="twitter:image" content="https://propdrills.com/icon.png" />
+  <script>
+    // Stamp the resolved theme before first paint to avoid a flash.
+    try {
+      var p = localStorage.getItem('dm.theme');
+      document.documentElement.dataset.theme =
+        p === 'light' || p === 'dark'
+          ? p
+          : matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+      document.documentElement.dataset.cb = localStorage.getItem('dm.cb') === '1' ? '1' : '0';
+    } catch (e) { document.documentElement.dataset.theme = 'dark'; }
+  </script>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%230b0d15'/%3E%3Cline x1='14' y1='55' x2='86' y2='55' stroke='%23e2b25e' stroke-width='4' stroke-dasharray='8 6'/%3E%3Cline x1='28' y1='52' x2='28' y2='82' stroke='%23ef5350' stroke-width='3'/%3E%3Crect x='22' y='58' width='12' height='20' rx='3' fill='%23ef5350'/%3E%3Cline x1='50' y1='38' x2='50' y2='72' stroke='%232bb3a3' stroke-width='3'/%3E%3Crect x='44' y='44' width='12' height='24' rx='3' fill='%232bb3a3'/%3E%3Cline x1='72' y1='18' x2='72' y2='60' stroke='%232bb3a3' stroke-width='3'/%3E%3Crect x='66' y='24' width='12' height='32' rx='3' fill='%232bb3a3'/%3E%3C/svg%3E" />
+  <title>PropDrills — MNQ Setup Trainer</title>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+</html>

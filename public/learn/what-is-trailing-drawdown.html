@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="color-scheme" content="dark light" />
+<title>What Is Trailing Drawdown? Prop Firm Rules Explained Simply | PropDrills</title>
+<meta name="description" content="Trailing drawdown explained in plain English: how the high-water mark moves your liquidation level, EOD vs intraday trailing, and the give-back trap that fails most futures evaluations." />
+<link rel="canonical" href="https://propdrills.com/learn/what-is-trailing-drawdown.html" />
+<link rel="icon" href="/icon.png" />
+<style>
+  :root { color-scheme: dark light;
+    --bg:#0a0e12; --panel:#12181b; --line:#263038; --txt:#e6edf3; --muted:#8a97a3; --accent:#21c77a; }
+  @media (prefers-color-scheme: light) {
+    :root { --bg:#ffffff; --panel:#f4f6f8; --line:#d4dbe2; --txt:#0b0f14; --muted:#5a6672; --accent:#0e9f6e; }
+  }
+  body { margin:0 auto; max-width:720px; padding:36px 22px 60px;
+    font:15px/1.7 system-ui,-apple-system,'Segoe UI',sans-serif; background:var(--bg); color:var(--txt); }
+  a { color:var(--accent); }
+  h1 { font-size:25px; letter-spacing:.3px; margin:14px 0 6px; }
+  h2 { font-size:18px; margin:26px 0 6px; }
+  .home { display:inline-block; margin-bottom:6px; font-size:13px; text-decoration:none; }
+  .muted { color:var(--muted); }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:18px; margin:22px 0; }
+  .cta { display:inline-block; background:var(--accent); color:#08130d; font-weight:700;
+    padding:12px 20px; border-radius:12px; text-decoration:none; margin-top:6px; }
+  .fine { font-size:11.5px; color:var(--muted); line-height:1.5; }
+</style>
+</head>
+<body>
+<a class="home" href="/learn/">← Learn</a>
+<h1>What is trailing drawdown?</h1>
+<p class="muted">The rule that ends more futures evaluations than any other — explained without the fine print.</p>
+
+<p>A <b>trailing drawdown</b> is a maximum-loss limit that follows your account upward. Instead of measuring losses from your starting balance, it measures them from the <b>highest equity your account has ever reached</b> — the high-water mark. Reach a new high and your liquidation level rises with it. It never moves back down.</p>
+
+<h2>The mechanics in one example</h2>
+<p>Say you take a $50,000 evaluation with a $2,000 trailing drawdown. On day one your liquidation level is $48,000. You trade well and equity touches $51,500 — your liquidation level is now $49,500. From this point, giving back $2,000 from that peak fails the account <i>even though you are still $1,500 ahead of where you started</i>. Profit does not create safety; it moves the wall up behind you.</p>
+
+<h2>EOD vs intraday trailing — the detail that matters most</h2>
+<p><b>End-of-day (EOD) trailing</b> updates the high-water mark from your closed balance at the end of each session. <b>Intraday trailing</b> updates it continuously from open equity — including unrealized profit. Under intraday trailing, a big open winner you let come back to breakeven can raise the bar and then breach it, without you ever booking the gain. Firms differ on which they use; it changes how you should manage winners, so confirm it before your first trade.</p>
+
+<h2>Why this rule fails good traders</h2>
+<p>Most people picture failing an evaluation as one catastrophic loss. The more common story is quieter: a strong morning raises the high-water mark, the trader keeps normal position sizes into the afternoon, and a routine pullback — one they would have survived easily on day one — crosses the moved line. The account did not blow up. It got walked backward into a wall that had been moving forward all day.</p>
+
+<h2>How to trade around it</h2>
+<p>Three habits cover most of it. Know your liquidation number in dollars before every session, not as a percentage — a number you can see is a number you respect. Size down after new equity highs, because that is exactly when your room is at its thinnest relative to recent volatility. And treat unrealized profit as real exposure under intraday trailing: a winner you refuse to manage is raising the bar with every tick.</p>
+
+<div class="card">
+  <b>Feel the rule instead of memorizing it</b>
+  <p class="muted" style="margin:6px 0 10px">PropDrills runs you through simulated evaluations on replayed MNQ sessions with a live trailing drawdown, daily loss limit, and real fill costs — so the wall becomes instinct before real money is involved.</p>
+  <a class="cta" href="https://propdrills.com/">Train free on the web</a>
+  &nbsp; <a href="https://apps.apple.com/us/app/prop-drills/id6798395246">Get the iOS app</a>
+</div>
+
+<p><a href="/drawdown-calculator.html">→ Calculate your exact liquidation level</a></p>
+<p class="fine">Education only — not financial advice. Generic mechanics; every firm defines its rules differently, so always confirm the exact terms of your evaluation. Not affiliated with any prop trading firm. Trading futures is leveraged and involves substantial risk of loss.</p>
+<p class="fine"><a href="/learn/prop-firm-evaluation-rules.html">Evaluation rules explained</a> · <a href="/learn/mnq-futures-basics.html">MNQ basics</a> · <a href="/about.html">About PropDrills</a></p>
+</body>
+</html>

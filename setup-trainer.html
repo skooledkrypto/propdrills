@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MNQ Price Action — Setup Recognition Trainer</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#151b23; --panel2:#1c2530; --line:#2a3441;
+    --txt:#e6edf3; --muted:#8b98a5; --accent:#4c9eff; --accent2:#7c5cff;
+    --green:#26a69a; --red:#ef5350; --gold:#e3b341; --good:#3fb950; --bad:#f85149;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased}
+  header{padding:18px 22px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:16px;flex-wrap:wrap;background:linear-gradient(180deg,#131a22,#0d1117)}
+  header h1{font-size:17px;margin:0;font-weight:650;letter-spacing:.2px}
+  header .sub{color:var(--muted);font-size:12.5px}
+  nav{margin-left:auto;display:flex;gap:6px}
+  nav button{background:var(--panel2);color:var(--muted);border:1px solid var(--line);padding:8px 15px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:550;transition:.15s}
+  nav button:hover{color:var(--txt)}
+  nav button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+  main{max-width:1080px;margin:0 auto;padding:22px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:16px}
+  h2{font-size:15px;margin:0 0 10px;font-weight:600}
+  h3{font-size:13.5px;margin:0 0 6px;font-weight:600;color:var(--accent)}
+  p{margin:0 0 10px}
+  .muted{color:var(--muted)}
+  small{color:var(--muted);font-size:12px}
+  canvas{width:100%;display:block;border-radius:8px;background:#0a0e14;border:1px solid var(--line)}
+  .row{display:flex;gap:16px;flex-wrap:wrap}
+  .pill{display:inline-block;font-size:11px;padding:2px 9px;border-radius:20px;border:1px solid var(--line);color:var(--muted);margin-right:6px}
+  .pill.long{color:var(--green);border-color:#2b5a52}
+  .pill.short{color:var(--red);border-color:#5a3130}
+  .pill.gold{color:var(--gold);border-color:#5a4d24}
+
+  /* Learn */
+  .learn-wrap{display:flex;gap:16px}
+  .learn-list{width:210px;flex-shrink:0}
+  .learn-list button{display:block;width:100%;text-align:left;background:var(--panel2);border:1px solid var(--line);color:var(--txt);padding:10px 12px;border-radius:9px;margin-bottom:7px;cursor:pointer;font-size:13px;transition:.15s}
+  .learn-list button:hover{border-color:var(--accent)}
+  .learn-list button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .learn-main{flex:1;min-width:0}
+  .kv{margin:12px 0}
+  .kv b{color:var(--txt)}
+  .field{margin-bottom:11px}
+  .field .lab{font-size:11.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:2px}
+  .ets{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+  .ets div{flex:1;min-width:150px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:9px 11px;font-size:12.5px}
+  .ets .lab{color:var(--accent);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+
+  /* Drill */
+  .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+  select{background:var(--panel2);color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px}
+  .scoreboard{display:flex;gap:10px;flex-wrap:wrap;margin-left:auto}
+  .stat{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:6px 13px;text-align:center;min-width:66px}
+  .stat .n{font-size:18px;font-weight:700;line-height:1.1}
+  .stat .l{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+  .q{font-size:14px;margin:14px 0 10px;font-weight:550}
+  .opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:9px}
+  .opts button{background:var(--panel2);border:1px solid var(--line);color:var(--txt);padding:12px;border-radius:9px;cursor:pointer;font-size:13.5px;font-weight:550;transition:.12s}
+  .opts button:hover:not(:disabled){border-color:var(--accent);background:#202b38}
+  .opts button:disabled{cursor:default;opacity:.9}
+  .opts button.correct{background:rgba(63,185,80,.16);border-color:var(--good);color:#8fe0a0}
+  .opts button.wrong{background:rgba(248,81,73,.14);border-color:var(--bad);color:#ff9a94}
+  .reveal{margin-top:16px;padding:15px 17px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);display:none}
+  .reveal.show{display:block}
+  .reveal .verdict{font-size:15px;font-weight:700;margin-bottom:8px}
+  .reveal .verdict.ok{color:var(--good)}
+  .reveal .verdict.no{color:var(--bad)}
+  .nextbtn{margin-top:14px;background:var(--accent);color:#fff;border:none;padding:11px 22px;border-radius:9px;cursor:pointer;font-size:13.5px;font-weight:600}
+  .nextbtn:hover{background:#3a8ae8}
+  .legend{font-size:12px;color:var(--muted);margin-top:8px}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
+  th{color:var(--muted);font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.5px}
+  .bar{height:7px;background:var(--panel2);border-radius:5px;overflow:hidden;min-width:70px}
+  .bar > i{display:block;height:100%;background:var(--good)}
+  .foot{color:var(--muted);font-size:11.5px;text-align:center;padding:18px 10px 30px;line-height:1.7}
+  @media(max-width:720px){.learn-wrap{flex-direction:column}.learn-list{width:100%;display:flex;flex-wrap:wrap;gap:6px}.learn-list button{width:auto;flex:1;min-width:120px}.scoreboard{margin-left:0;width:100%}}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>📈 MNQ Price Action — Setup Recognition Trainer</h1>
+    <div class="sub">Learn the highest-value patterns, then drill your eye until spotting them is automatic.</div>
+  </div>
+  <nav>
+    <button data-view="learn" class="active">Learn</button>
+    <button data-view="drill">Drill</button>
+    <button data-view="stats">Stats</button>
+  </nav>
+</header>
+<main>
+
+  <!-- LEARN VIEW -->
+  <section id="view-learn">
+    <div class="card" style="border-color:#33405a;background:linear-gradient(180deg,#141d2b,#151b23)">
+      <h2>How to use this deck</h2>
+      <p class="muted" style="margin-bottom:6px">Backtests are blunt about it: a candlestick pattern on its own is a weak edge. What turns it into a real setup is <b style="color:var(--txt)">location + context + exits</b>. So every pattern here is taught the same way — <b style="color:var(--txt)">it only counts when it forms at a level you marked in advance</b>, in a market whose structure agrees.</p>
+      <p class="muted" style="margin:0">Work one pattern at a time. Read it here, then switch to <b style="color:var(--txt)">Drill</b> and set the focus to that single pattern until your accuracy is consistently high. Add the next one only when the first is automatic. The "No Setup" reps matter as much as the others — most of the tape is nothing, and learning to pass is a real skill.</p>
+    </div>
+    <div class="learn-wrap">
+      <div class="learn-list" id="learnList"></div>
+      <div class="learn-main">
+        <div class="card">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <h2 id="lTitle" style="margin:0"></h2>
+            <span id="lBias"></span>
+          </div>
+          <canvas id="lCanvas" height="330"></canvas>
+          <div class="legend" id="lLegend"></div>
+          <div class="kv">
+            <div class="field"><div class="lab">What it is</div><div id="lDef"></div></div>
+            <div class="field"><div class="lab">Why it works</div><div id="lWhy"></div></div>
+            <div class="field"><div class="lab">What to look for</div><div id="lLook"></div></div>
+            <div class="field"><div class="lab">Common trap</div><div id="lTrap"></div></div>
+            <div id="lEvidenceWrap" class="field" style="display:none"><div class="lab">Evidence note</div><div id="lEvidence"></div></div>
+          </div>
+          <div class="ets">
+            <div><div class="lab">Entry</div><span id="lEntry"></span></div>
+            <div><div class="lab">Stop</div><span id="lStop"></span></div>
+            <div><div class="lab">Target</div><span id="lTarget"></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DRILL VIEW -->
+  <section id="view-drill" style="display:none">
+    <div class="card">
+      <div class="controls">
+        <label class="muted" style="font-size:12.5px">Focus
+          <select id="focusSel"></select>
+        </label>
+        <label class="muted" style="font-size:12.5px">Difficulty
+          <select id="diffSel">
+            <option value="easy">Easy — cleaner charts</option>
+            <option value="hard" selected>Realistic — more noise</option>
+          </select>
+        </label>
+        <div class="scoreboard">
+          <div class="stat"><div class="n" id="sSeen">0</div><div class="l">Seen</div></div>
+          <div class="stat"><div class="n" id="sAcc">—</div><div class="l">Accuracy</div></div>
+          <div class="stat"><div class="n" id="sStreak">0</div><div class="l">Streak</div></div>
+          <div class="stat"><div class="n" id="sBest">0</div><div class="l">Best</div></div>
+        </div>
+      </div>
+      <canvas id="dCanvas" height="360"></canvas>
+      <div class="legend">Dashed gold line = a key level you'd have marked before the session (prior-day / overnight high or low). Judge only what's happening <b>at that level</b>, at the right edge of the chart.</div>
+      <div class="q" id="dQ">What is price doing at the level?</div>
+      <div class="opts" id="dOpts"></div>
+      <div class="reveal" id="dReveal">
+        <div class="verdict" id="dVerdict"></div>
+        <div id="dExplain"></div>
+        <div class="legend" id="dOutcome"></div>
+        <button class="nextbtn" id="dNext">Next chart →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS VIEW -->
+  <section id="view-stats" style="display:none">
+    <div class="card">
+      <h2>Your recognition stats</h2>
+      <p class="muted" style="font-size:12.5px">Per-pattern accuracy over this session. Aim to get each one comfortably above ~80% on its own focus before you trust it live. <span id="statsEmpty">Do some drills to populate this.</span></p>
+      <table id="statsTable"><thead><tr><th>Pattern</th><th>Seen</th><th>Correct</th><th style="width:180px">Accuracy</th></tr></thead><tbody></tbody></table>
+    </div>
+    <div class="card">
+      <h2>Why drilling this works</h2>
+      <p class="muted" style="margin:0">Recognition is a trainable skill built by reps + immediate feedback. Live, your 3–9 PM window gives you maybe 1–3 setups a night. Here you can see hundreds. When your focused accuracy is high and stable, move to bar-replay on a real platform (NinjaTrader Market Replay or TradingView Bar Replay) to add live noise — then, and only then, buy the prop challenge.</p>
+    </div>
+  </section>
+
+  <div class="foot">
+    Progress is kept in memory for this session only (it resets on reload) — ask me for a version that saves your history if you want that.<br>
+    Illustrative outcomes are teaching aids, not predictions — real setups fail often. This is an education tool, not financial advice; trading MNQ is leveraged and risky.
+  </div>
+</main>
+
+<script>
+"use strict";
+/* ---------- seeded RNG (for stable Learn examples) + live RNG for drills ---------- */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+let R = Math.random;
+function rnd(a,b){return a+R()*(b-a);}
+
+const L = 21500;               // the "level" — everything forms here
+function C(o,h,l,c){return {o,h,l,c};}   // candle
+
+/* ---------- lead-in random walk drifting from startP toward endP ---------- */
+function leadIn(n,startP,endP,vol){
+  vol = vol||9;
+  const arr=[]; let prev=startP;
+  for(let i=0;i<n;i++){
+    const t=(i+1)/n;
+    const target=startP+(endP-startP)*t;
+    const o=prev;
+    const cl=target+rnd(-vol,vol);
+    const hi=Math.max(o,cl)+rnd(2,vol);
+    const lo=Math.min(o,cl)-rnd(2,vol);
+    arr.push(C(o,hi,lo,cl));
+    prev=cl;
+  }
+  return arr;
+}
+
+/* ---------- pattern builders (bullish base; mirror() makes the bearish twin) ---------- */
+function buildSweep(){
+  const lead=leadIn(13,L+135,L+18);
+  const c1=C(L+18,L+22,L+4,L+8);              // down into support
+  const c2=C(L+9,L+29,L-22,L+26);             // spike below L, close back above (the sweep)
+  const cs=[...lead,c1,c2];
+  return {candles:cs,hl:[cs.length-1,cs.length-1],bias:'long',id:'sweep'};
+}
+function buildPin(){
+  const lead=leadIn(13,L+135,L+20);
+  const c1=C(L+20,L+24,L+8,L+12);
+  const pin=C(L+21,L+28,L-14,L+25);           // small body up top, long lower wick under L
+  const cs=[...lead,c1,pin];
+  return {candles:cs,hl:[cs.length-1,cs.length-1],bias:'long',id:'pin'};
+}
+function buildEngulf(){
+  const lead=leadIn(12,L+135,L+22);
+  const down=C(L+22,L+25,L+5,L+9);            // red
+  const up=C(L+6,L+33,L+3,L+30);              // green body engulfs the red body
+  const cs=[...lead,down,up];
+  return {candles:cs,hl:[cs.length-2,cs.length-1],bias:'long',id:'engulf'};
+}
+function buildInside(){
+  const lead=leadIn(12,L+120,L+8);
+  const big=C(L+6,L+50,L+2,L+46);            // big momentum candle off support
+  const ins=C(L+34,L+40,L+20,L+26);          // inside bar (coil) within big's range
+  const cs=[...lead,big,ins];
+  return {candles:cs,hl:[cs.length-1,cs.length-1],bias:'long',id:'inside'};
+}
+function buildBR(){
+  const lead=leadIn(12,L-115,L-12);          // rising from below toward resistance L
+  const brk=C(L-10,L+28,L-12,L+24);          // break above L
+  const rt1=C(L+22,L+24,L+2,L+6);            // pull back to retest L, holds above
+  const rt2=C(L+7,L+23,L+3,L+20);            // bounce off the flipped level
+  const cs=[...lead,brk,rt1,rt2];
+  return {candles:cs,hl:[cs.length-2,cs.length-1],bias:'long',id:'br'};
+}
+function buildDouble(){
+  const lead=leadIn(9,L+120,L+8);
+  const t1=C(L+8,L+19,L-4,L+16);             // first touch of support
+  const u1=C(L+16,L+37,L+13,L+34);           // bounce
+  const u2=C(L+34,L+38,L+26,L+30);
+  const d1=C(L+30,L+32,L+10,L+14);           // back down
+  const t2=C(L+14,L+23,L-3,L+20);            // second touch holds -> double bottom
+  const cs=[...lead,t1,u1,u2,d1,t2];
+  return {candles:cs,hl:[cs.length-5,cs.length-1],bias:'long',id:'double'};
+}
+function buildNo(){
+  const lead=leadIn(12,L+80,L+2,7);
+  const chop=[C(L+2,L+6,L-8,L-4),C(L-4,L+7,L-7,L+3),C(L+3,L+6,L-6,L-2),C(L-2,L+5,L-5,L+2)];
+  const cs=[...lead,...chop];
+  return {candles:cs,hl:[cs.length-4,cs.length-1],bias:'none',id:'no'};
+}
+const BUILDERS={sweep:buildSweep,pin:buildPin,engulf:buildEngulf,inside:buildInside,br:buildBR,double:buildDouble,no:buildNo};
+
+function mirror(scn){
+  const cs=scn.candles.map(k=>C(2*L-k.o, 2*L-k.l, 2*L-k.h, 2*L-k.c));
+  return {candles:cs,hl:scn.hl.slice(),bias:scn.bias==='long'?'short':scn.bias==='short'?'long':'none',id:scn.id};
+}
+function continuation(lastClose,bias,n,vol){
+  n=n||6; vol=vol||7;
+  const dir=bias==='long'?1:bias==='short'?-1:0;
+  const arr=[]; let prev=lastClose;
+  for(let i=0;i<n;i++){
+    const o=prev;
+    const cl=o+dir*rnd(7,17)+rnd(-vol,vol);
+    const hi=Math.max(o,cl)+rnd(2,vol);
+    const lo=Math.min(o,cl)-rnd(2,vol);
+    arr.push(C(o,hi,lo,cl));
+    prev=cl;
+  }
+  return arr;
+}
+
+/* ---------- pattern info (Learn text + Drill reveal) ---------- */
+const INFO={
+  sweep:{name:'Liquidity Sweep + Rejection',cat:'Trigger',
+    def:'Price pokes just past a key level to run the stops resting beyond it, then snaps back. The failed break — not the break — is the signal.',
+    why:'The obvious stops sit above swing highs and below swing lows. Larger participants trigger that liquidity to fill their orders, then drive the other way, leaving a sharp wick.',
+    look:'A wick that pierces the level and a candle that closes back on the original side, ideally with force and a quick reclaim.',
+    trap:'A sweep is not a breakout. You need the CLOSE back inside. If price closes and holds beyond the level, it broke — do not fade it.',
+    entry:'On the reclaim / close back inside the level.',stop:'Just beyond the wick\'s extreme.',target:'Next level or session VWAP; scale out.'},
+  pin:{name:'Pin Bar (Rejection Wick)',cat:'Trigger',
+    def:'A candle with a small body and one long wick, showing price was pushed to a level and firmly rejected.',
+    why:'The long wick is a footprint of a failed push — one side tried, got absorbed, and the other side slammed it back within the bar.',
+    look:'Wick at least ~2× the body, poking into your level, with the close near the far end of the candle (away from the level).',
+    trap:'A pin bar in the middle of nowhere means little. It only carries weight rejecting a level or a prior swing. Small wicks in chop are noise.',
+    entry:'On break of the pin bar in the rejection direction.',stop:'Beyond the wick tip.',target:'Next level; aim ~2:1 or better.'},
+  engulf:{name:'Engulfing',cat:'Trigger',
+    def:'A candle whose body completely swallows the previous candle\'s body, marking a decisive shift in control at a level.',
+    why:'It shows one side overwhelmed the other in a single bar — the strongest single-bar momentum-shift signal.',
+    look:'Body (open-to-close) fully covers the prior body, at or just past a level, ideally larger and with volume behind it.',
+    trap:'Wick-only overlap doesn\'t count — the real body must engulf. And an engulfing mid-range is far weaker than one at a marked level.',
+    entry:'On close of the engulfing candle or a small pullback.',stop:'Beyond the engulfing candle\'s far end.',target:'Next level / VWAP.',
+    evidence:'In large backtests, engulfing patterns rank as the most reliable single candlestick — but still only with a sensible exit and good location.'},
+  inside:{name:'Inside Bar (Compression)',cat:'Trigger',
+    def:'A small candle whose entire range sits inside the previous candle — volatility contracting, coiling before it expands.',
+    why:'A pause after a strong move stores energy. The market balances, then usually releases in the direction of the breakout.',
+    look:'One or more bars fully contained within a prior momentum candle\'s range, ideally at or just off a level.',
+    trap:'Inside bars break both ways and can be fake-outs. Trade the actual break of the mother bar, not the anticipation of it.',
+    entry:'On break of the mother-bar high/low in trend direction.',stop:'Opposite side of the inside bar.',target:'Measured move of the mother bar / next level.'},
+  br:{name:'Break & Retest (S/R Flip)',cat:'Trigger',
+    def:'Price breaks a level, comes back to test it from the other side, and the level holds — old resistance becomes new support (or vice-versa).',
+    why:'A level that flips and holds confirms real participation changed hands there. The retest is a lower-risk entry than chasing the break.',
+    look:'A clean break with a close beyond the level, then a pullback that respects the level and rejects, continuing in the break direction.',
+    trap:'If the retest closes back through the level, the break failed (that becomes a sweep/trap the other way). Wait for the hold.',
+    entry:'On the rejection off the retested level.',stop:'Back through the level.',target:'Next level in break direction.'},
+  double:{name:'Double Top / Double Bottom',cat:'Trigger',
+    def:'Two failed attempts to push through the same level, signalling the level is defended and price may reverse.',
+    why:'The second failure at the same price tells you buyers (or sellers) couldn\'t follow through — supply/demand is stacked at that line.',
+    look:'Two distinct touches of one level with a pullback between; the second touch rejects. Confirmation on break of the middle swing.',
+    trap:'A third touch often breaks — levels weaken with each test. Don\'t keep fading the same level forever.',
+    entry:'On rejection of the second touch, or break of the middle swing.',stop:'Beyond the two touches.',target:'At least the height of the pattern.'},
+  no:{name:'No Setup (Discipline)',cat:'Skill',
+    def:'The chart is chopping with no clean reaction at a level. The correct action is to do nothing.',
+    why:'Most of the tape — especially the quiet 3–9 PM evening session — is noise. Over-trading the dead middle is the #1 way new traders bleed out.',
+    look:'Price meandering across the level with no decisive wick, no engulf, no structure. Small indecisive bodies both sides of the line.',
+    trap:'Forcing a trade because you\'re bored or "due." Recognizing nothing-here and passing IS a winning decision.',
+    entry:'—',stop:'—',target:'Stay flat; wait for A+ only.'}
+};
+const DRILL_ORDER=['sweep','pin','engulf','inside','br','double','no'];
+
+/* ---------- canvas drawing ---------- */
+function drawChart(canvas,candles,level,opts){
+  opts=opts||{};
+  const ctx=canvas.getContext('2d');
+  const dpr=window.devicePixelRatio||1;
+  const cssW=canvas.clientWidth||canvas.parentElement.clientWidth;
+  const cssH=canvas.getAttribute('height')*1;
+  canvas.width=cssW*dpr; canvas.height=cssH*dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,cssW,cssH);
+
+  const all=candles.slice();
+  const outcome=opts.outcome||[];
+  const full=all.concat(outcome);
+  let min=Infinity,max=-Infinity;
+  full.forEach(k=>{min=Math.min(min,k.l);max=Math.max(max,k.h);});
+  min=Math.min(min,level);max=Math.max(max,level);
+  const pad=(max-min)*0.12||10; min-=pad; max+=pad;
+  const mL=8,mR=54,mT=12,mB=14;
+  const plotW=cssW-mL-mR, plotH=cssH-mT-mB;
+  const n=full.length;
+  const step=plotW/n;
+  const bw=Math.min(step*0.62,16);
+  const yOf=p=>mT+plotH-((p-min)/(max-min))*plotH;
+
+  // level line
+  ctx.strokeStyle='#e3b34188'; ctx.lineWidth=1.4; ctx.setLineDash([6,5]);
+  ctx.beginPath();ctx.moveTo(mL,yOf(level));ctx.lineTo(mL+plotW,yOf(level));ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle='#e3b341'; ctx.font='11px -apple-system,sans-serif'; ctx.textBaseline='middle';
+  ctx.fillText(level.toFixed(0),mL+plotW+6,yOf(level));
+
+  // highlight region
+  if(opts.hl){
+    const x0=mL+opts.hl[0]*step, x1=mL+(opts.hl[1]+1)*step;
+    ctx.fillStyle='rgba(76,158,255,0.10)';
+    ctx.fillRect(x0,mT,x1-x0,plotH);
+    ctx.strokeStyle='rgba(76,158,255,0.35)';ctx.lineWidth=1;
+    ctx.strokeRect(x0+.5,mT+.5,x1-x0-1,plotH-1);
+  }
+  // divider between setup and outcome
+  if(outcome.length){
+    const xd=mL+all.length*step;
+    ctx.strokeStyle='#4c9eff55';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+    ctx.beginPath();ctx.moveTo(xd,mT);ctx.lineTo(xd,mT+plotH);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle='#4c9eff99';ctx.font='10px sans-serif';ctx.textBaseline='top';
+    ctx.fillText('outcome →',xd+4,mT+2);
+  }
+  // candles
+  full.forEach((k,i)=>{
+    const x=mL+i*step+step/2;
+    const up=k.c>=k.o;
+    const isOut=i>=all.length;
+    let col=up?'#26a69a':'#ef5350';
+    if(isOut)col=up?'#26a69a88':'#ef535088';
+    ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineWidth=1.2;
+    ctx.beginPath();ctx.moveTo(x,yOf(k.h));ctx.lineTo(x,yOf(k.l));ctx.stroke();
+    const yo=yOf(k.o),yc=yOf(k.c);
+    const top=Math.min(yo,yc),h=Math.max(Math.abs(yo-yc),1.2);
+    ctx.fillRect(x-bw/2,top,bw,h);
+  });
+}
+
+/* ---------- view switching ---------- */
+const views={learn:document.getElementById('view-learn'),drill:document.getElementById('view-drill'),stats:document.getElementById('view-stats')};
+document.querySelectorAll('nav button').forEach(b=>{
+  b.onclick=()=>{
+    document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    Object.values(views).forEach(v=>v.style.display='none');
+    views[b.dataset.view].style.display='';
+    if(b.dataset.view==='stats')renderStats();
+    if(b.dataset.view==='learn')redrawLearn();
+    if(b.dataset.view==='drill')redrawDrill();
+  };
+});
+
+/* ---------- LEARN ---------- */
+const learnList=document.getElementById('learnList');
+let curLearn='sweep';
+DRILL_ORDER.forEach(id=>{
+  const b=document.createElement('button');
+  b.textContent=INFO[id].name;
+  b.dataset.id=id;
+  if(id===curLearn)b.classList.add('active');
+  b.onclick=()=>{curLearn=id;document.querySelectorAll('.learn-list button').forEach(x=>x.classList.toggle('active',x.dataset.id===id));renderLearn();};
+  learnList.appendChild(b);
+});
+let learnScn=null;
+function renderLearn(){
+  const info=INFO[curLearn];
+  document.getElementById('lTitle').textContent=info.name;
+  const biasEl=document.getElementById('lBias');
+  const bt=(curLearn==='no')?'':(['sweep','pin','engulf','double'].includes(curLearn)?'shown as bullish (support)':curLearn==='br'?'shown as bullish flip':'shown as bullish');
+  biasEl.innerHTML='<span class="pill gold">'+info.cat+'</span>'+(bt?'<span class="pill">'+bt+'</span>':'');
+  document.getElementById('lDef').textContent=info.def;
+  document.getElementById('lWhy').textContent=info.why;
+  document.getElementById('lLook').textContent=info.look;
+  document.getElementById('lTrap').textContent=info.trap;
+  const ev=document.getElementById('lEvidenceWrap');
+  if(info.evidence){ev.style.display='';document.getElementById('lEvidence').textContent=info.evidence;}else ev.style.display='none';
+  document.getElementById('lEntry').textContent=info.entry;
+  document.getElementById('lStop').textContent=info.stop;
+  document.getElementById('lTarget').textContent=info.target;
+  document.getElementById('lLegend').innerHTML='Gold dashed line = the level. Blue box = the pattern. '+(curLearn==='no'?'Here there is no valid reaction — you pass.':'This is the bullish version; flip it vertically for the bearish twin at resistance.');
+  // build a stable example
+  R=mulberry32(42+DRILL_ORDER.indexOf(curLearn));
+  learnScn=BUILDERS[curLearn]();
+  R=Math.random;
+  redrawLearn();
+}
+function redrawLearn(){
+  if(!learnScn)return;
+  drawChart(document.getElementById('lCanvas'),learnScn.candles,L,{hl:learnScn.hl});
+}
+
+/* ---------- DRILL ---------- */
+const focusSel=document.getElementById('focusSel');
+focusSel.innerHTML='<option value="all">All patterns (mixed)</option>'+DRILL_ORDER.filter(x=>x!=='no').map(id=>'<option value="'+id+'">'+INFO[id].name+'</option>').join('');
+const diffSel=document.getElementById('diffSel');
+let stats={};DRILL_ORDER.forEach(id=>stats[id]={seen:0,correct:0});
+let totalSeen=0,totalCorrect=0,streak=0,best=0;
+let curScn=null,answered=false;
+
+function pickCategory(){
+  const focus=focusSel.value;
+  if(focus!=='all'){return Math.random()<0.5?focus:'no';}
+  const pool=['sweep','pin','engulf','inside','br','double','sweep','pin','engulf','double','no'];
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+function genScenario(){
+  const cat=pickCategory();
+  let scn=BUILDERS[cat]();
+  if(cat!=='no'&&Math.random()<0.5)scn=mirror(scn);
+  const last=scn.candles[scn.candles.length-1].c;
+  scn.outcome=continuation(last,scn.bias,6,diffSel.value==='hard'?9:5);
+  scn.answer=cat;
+  return scn;
+}
+function newDrill(){
+  curScn=genScenario();answered=false;
+  drawChart(document.getElementById('dCanvas'),curScn.candles,L,{});
+  const focus=focusSel.value;
+  const opts= focus==='all'
+    ? DRILL_ORDER.map(id=>[id,shortName(id)])
+    : [[focus,shortName(focus)],['no','No Setup']];
+  const box=document.getElementById('dOpts');box.innerHTML='';
+  opts.forEach(([id,label])=>{
+    const b=document.createElement('button');
+    b.textContent=label;b.dataset.id=id;
+    b.onclick=()=>answer(id,b);
+    box.appendChild(b);
+  });
+  document.getElementById('dReveal').classList.remove('show');
+}
+function shortName(id){return {sweep:'Liquidity Sweep',pin:'Pin Bar',engulf:'Engulfing',inside:'Inside Bar',br:'Break & Retest',double:'Double Top / Bottom',no:'No Setup'}[id];}
+function answer(id,btn){
+  if(answered)return;answered=true;
+  const correct=id===curScn.answer;
+  const info=INFO[curScn.answer];
+  // color buttons
+  document.querySelectorAll('#dOpts button').forEach(b=>{
+    b.disabled=true;
+    if(b.dataset.id===curScn.answer)b.classList.add('correct');
+    else if(b.dataset.id===id)b.classList.add('wrong');
+  });
+  // stats
+  totalSeen++;stats[curScn.answer].seen++;
+  if(correct){totalCorrect++;stats[curScn.answer].correct++;streak++;best=Math.max(best,streak);}
+  else streak=0;
+  updateScore();
+  // redraw with outcome
+  drawChart(document.getElementById('dCanvas'),curScn.candles,L,{hl:curScn.hl,outcome:curScn.outcome});
+  // reveal
+  const rev=document.getElementById('dReveal');rev.classList.add('show');
+  const v=document.getElementById('dVerdict');
+  v.className='verdict '+(correct?'ok':'no');
+  v.textContent=(correct?'✓ Correct — ':'✗ Not quite — ')+info.name+(curScn.answer!=='no'?(' ('+(curScn.bias==='long'?'bullish / long':'bearish / short')+')'):'');
+  document.getElementById('dExplain').innerHTML='<b>What to see:</b> '+info.look+' &nbsp;<b>Trap:</b> '+info.trap;
+  document.getElementById('dOutcome').textContent=curScn.answer==='no'?'No trade — the correct move was to stay flat. The faded candles show it just kept chopping.':'The faded candles show one illustrative way it could resolve in the '+(curScn.bias==='long'?'up':'down')+' direction. Real setups fail often — the edge is in taking many with a tight stop, not in any single trade.';
+}
+function updateScore(){
+  document.getElementById('sSeen').textContent=totalSeen;
+  document.getElementById('sAcc').textContent=totalSeen?Math.round(100*totalCorrect/totalSeen)+'%':'—';
+  document.getElementById('sStreak').textContent=streak;
+  document.getElementById('sBest').textContent=best;
+}
+document.getElementById('dNext').onclick=newDrill;
+focusSel.onchange=newDrill;
+diffSel.onchange=()=>{if(curScn&&!answered)newDrill();};
+function redrawDrill(){if(!curScn){newDrill();}else drawChart(document.getElementById('dCanvas'),curScn.candles,L,answered?{hl:curScn.hl,outcome:curScn.outcome}:{});}
+
+/* ---------- STATS ---------- */
+function renderStats(){
+  const tb=document.querySelector('#statsTable tbody');tb.innerHTML='';
+  let any=false;
+  DRILL_ORDER.forEach(id=>{
+    const s=stats[id];if(!s.seen)return;any=true;
+    const acc=Math.round(100*s.correct/s.seen);
+    const tr=document.createElement('tr');
+    tr.innerHTML='<td>'+INFO[id].name+'</td><td>'+s.seen+'</td><td>'+s.correct+'</td>'+
+      '<td><div style="display:flex;align-items:center;gap:8px"><div class="bar"><i style="width:'+acc+'%;background:'+(acc>=80?'#3fb950':acc>=60?'#e3b341':'#f85149')+'"></i></div><span>'+acc+'%</span></div></td>';
+    tb.appendChild(tr);
+  });
+  document.getElementById('statsEmpty').style.display=any?'none':'';
+}
+
+/* ---------- init ---------- */
+renderLearn();
+window.addEventListener('resize',()=>{redrawLearn();if(curScn)redrawDrill();});
+</script>
+</body>
+</html>
